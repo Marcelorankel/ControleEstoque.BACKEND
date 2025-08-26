@@ -54,7 +54,7 @@ namespace ControleEstoque.Application.Services
                 Email = request.Email,
                 TipoUsuario = HelperUtil.ObterValorNumericoEnum<eTipoUsuario>(request.TipoUsuario.ToString()),
                 Senha = request.Senha,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             await _usuarioRepository.CreateAsync(obj);

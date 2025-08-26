@@ -31,14 +31,14 @@ namespace ControleEstoque.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<T>> Create(T entity)
+        public virtual async Task<ActionResult<T>> Create(T entity)
         {
             await _repository.CreateAsync(entity);
             return Ok(entity);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, T entity)
+        public virtual async Task<IActionResult> Update(Guid id, T entity)
         {
             await _repository.UpdateAsync(entity);
             return NoContent();

@@ -12,5 +12,7 @@ namespace ControleEstoque.Core.Interfaces.Service
     {
         Task<Produto?> GetByNomeAsync(string email);
         Task NovoProdutoAsync(ProdutoRequest request);
+        Task AtualizarProdutoAsync(ProdutoRequest request);
+        Task AtualizarProdutoAdminAsync(ProdutoAdminRequest request);
     }
 }

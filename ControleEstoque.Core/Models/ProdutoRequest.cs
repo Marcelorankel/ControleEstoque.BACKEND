@@ -9,9 +9,14 @@ namespace ControleEstoque.Core.Models
 {
     public class ProdutoRequest
     {
-        public string Nome { get; set; }
-        public string Descricao { get; set; }
+        public Guid Id { get; set; }
+        public string Nome { get; set; } = default!;
+        public string Descricao { get; set; } = default!;
         public decimal Preco { get; set; }
+    }
+
+    public class ProdutoAdminRequest : ProdutoRequest
+    {
         public int Quantidade { get; set; }
     }
 }

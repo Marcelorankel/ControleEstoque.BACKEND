@@ -44,21 +44,76 @@ namespace ControleEstoque.Application.Services
             //Preço
             if (request.Preco <= 0)
                 throw new ValidationException($"Preço não informado ou invalido");
-            //Quantidade
-            if (request.Quantidade <= 0)
-                throw new ValidationException($"Quantidade não informada ou invalida");
-    
+            ////Quantidade
+            //if (request.Quantidade <= 0)
+            //    throw new ValidationException($"Quantidade não informada ou invalida");
+
             var obj = new Produto
             {
                 Id = Guid.NewGuid(),
                 Nome = request.Nome,
                 Descricao = request.Descricao,
                 Preco = request.Preco,
-                Quantidade = request.Quantidade,
-                CreatedAt = DateTime.Now
+                Quantidade = 1,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _produtoRepository.CreateAsync(obj);
+        }
+
+        public async Task AtualizarProdutoAsync(ProdutoRequest request)
+        {
+            //Produto(Nome) já cadastrado
+            var res = await _produtoRepository.GetByIdAsync(request.Id);
+            if (res == null)
+                throw new ValidationException($"Codigo {request.Id} do Produto não existe no sistema.");
+            //Validadores
+            //Nome
+            if (request.Nome == string.Empty)
+                throw new ValidationException($"Nome não informado");
+            //Descricao
+            if (request.Descricao == string.Empty)
+                throw new ValidationException($"Descrição não informada");
+            //Preço
+            if (request.Preco <= 0)
+                throw new ValidationException($"Preço não informado ou invalido");
+           
+            res.Nome = request.Nome;
+            res.Descricao = request.Descricao;
+            res.Preco = request.Preco;
+            res.UpdatedAt = DateTime.UtcNow;
+
+            await _repository.UpdateAsync(res);
+        }
+
+        public async Task AtualizarProdutoAdminAsync(ProdutoAdminRequest request)
+        {
+            //Produto(Nome) já cadastrado
+            var res = await _produtoRepository.GetByIdAsync(request.Id);
+            if (res == null)
+                throw new ValidationException($"Codigo {request.Id} do Produto não existe no sistema.");
+            //Validadores
+            //Nome
+            if (request.Nome == string.Empty)
+                throw new ValidationException($"Nome não informado");
+            //Descricao
+            if (request.Descricao == string.Empty)
+                throw new ValidationException($"Descrição não informada");
+            //Preço
+            if (request.Preco <= 0)
+                throw new ValidationException($"Preço não informado ou invalido");
+            //Quantidade
+            if (request.Quantidade <= 0)
+                throw new ValidationException($"Quantidade não informada ou invalida");
+            res.Nome = request.Nome;
+            res.Descricao = request.Descricao;
+            res.Preco = request.Preco;
+            res.Quantidade = request.Quantidade;
+            res.UpdatedAt = DateTime.UtcNow;
+
+
+
+            await _repository.UpdateAsync(res);
         }
     }
 }
