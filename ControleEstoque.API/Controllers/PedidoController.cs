@@ -43,7 +43,7 @@ namespace ControleEstoque.API.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest($"Não foi possível cadastrar o usuário.\n{ex.Message}");
+                    return BadRequest($"Não foi possível efetuar o pedido.\n{ex.Message}");
                 }
             }
         }

@@ -30,12 +30,28 @@ namespace ControleEstoque.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task CreateAsync(T entity)
+        /// <summary>
+        /// Cria a entidade e retorna o valor da chave gerada
+        /// </summary>
+        public async Task<object> CreateAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
-        }
 
+            // Pega a chave primária da entidade dinamicamente
+            var keyName = _context.Model
+                .FindEntityType(typeof(T))
+                .FindPrimaryKey()
+                .Properties
+                .Select(p => p.Name)
+                .FirstOrDefault();
+
+            if (keyName == null)
+                throw new Exception("Não foi possível determinar a chave primária da entidade.");
+
+            var keyValue = entity.GetType().GetProperty(keyName)?.GetValue(entity);
+            return keyValue!;
+        }
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
