@@ -19,7 +19,7 @@ namespace ControleEstoque.API.Controllers
             _produtoService = produtoService;
         }
 
-        [Authorize(Policy = "ADMIN")]
+        [Authorize]
         [HttpPost("Cadastrar")]
         public async Task<IActionResult> Create([FromForm] ProdutoRequest request)
         {
