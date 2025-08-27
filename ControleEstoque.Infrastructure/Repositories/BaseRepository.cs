@@ -32,34 +32,58 @@ namespace ControleEstoque.Infrastructure.Repositories
 
         public async Task<object> CreateAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _dbSet.AddAsync(entity);
+                await _context.SaveChangesAsync();
 
-            // Pega a chave primária da entidade dinamicamente
-            var keyName = _context.Model
-                .FindEntityType(typeof(T))
-                .FindPrimaryKey()
-                .Properties
-                .Select(p => p.Name)
-                .FirstOrDefault();
+                // Pega a chave primária da entidade dinamicamente
+                var keyName = _context.Model
+                    .FindEntityType(typeof(T))
+                    .FindPrimaryKey()
+                    .Properties
+                    .Select(p => p.Name)
+                    .FirstOrDefault();
 
-            if (keyName == null)
-                throw new Exception("Não foi possível determinar a chave primária da entidade.");
+                if (keyName == null)
+                    throw new Exception("Não foi possível determinar a chave primária da entidade.");
 
-            var keyValue = entity.GetType().GetProperty(keyName)?.GetValue(entity);
+                var keyValue = entity.GetType().GetProperty(keyName)?.GetValue(entity);
 
-            return keyValue!;
+                return keyValue!;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"{ex.InnerException?.Message}");
+            }
         }
         public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _dbSet.Update(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"{ex.InnerException?.Message}");
+            }
         }
 
         public async Task DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception($"{ex.InnerException?.Message}");
+            }
         }
     }
 }

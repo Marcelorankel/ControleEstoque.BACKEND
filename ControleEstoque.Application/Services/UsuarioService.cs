@@ -4,6 +4,8 @@ using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
 using ControleEstoque.Core.Utils;
+using Elastic.Apm;
+using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,13 @@ namespace ControleEstoque.Application.Services
     public class UsuarioService : BaseService<Usuario>, IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly Tracer _tracer;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository, TracerProvider tracerProvider)
             : base(usuarioRepository)
         {
             _usuarioRepository = usuarioRepository;
+            _tracer = tracerProvider.GetTracer("UsuarioService");
         }
 
         public async Task<Usuario?> GetByEmailAsync(string email)
@@ -30,6 +34,12 @@ namespace ControleEstoque.Application.Services
 
         public async Task NovoUsuarioAsync(UsuarioRequest request)
         {
+            //Trace
+            using var span = _tracer.StartActiveSpan("CadastrarNovoUsuario");
+            //Elastic APM
+            var transaction = Agent.Tracer.CurrentTransaction;
+            var elasticSpan = transaction?.StartSpan("CadastrarNovoUsuario", "custom");
+
             //Usuario(Email) já cadastrado
             var res = await _usuarioRepository.GetByEmailAsync(request.Email);
             if (res != null)
@@ -46,18 +56,27 @@ namespace ControleEstoque.Application.Services
             //Valida tamanho senha
             if (request.Senha.Length < 6)
                 throw new ValidationException($"Senha deve conter no minimo 6 caracteres");
-
-            var obj = new Usuario
+            try
             {
-                Id = Guid.NewGuid(),
-                Nome = request.Nome,
-                Email = request.Email,
-                TipoUsuario = HelperUtil.ObterValorNumericoEnum<eTipoUsuario>(request.TipoUsuario.ToString()),
-                Senha = request.Senha,
-                CreatedAt = DateTime.UtcNow
-            };
+                var obj = new Usuario
+                {
+                    Id = Guid.NewGuid(),
+                    Nome = request.Nome,
+                    Email = request.Email,
+                    TipoUsuario = HelperUtil.ObterValorNumericoEnum<eTipoUsuario>(request.TipoUsuario.ToString()),
+                    Senha = request.Senha,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            await _usuarioRepository.CreateAsync(obj);
+                await _usuarioRepository.CreateAsync(obj);
+
+                span.SetAttribute("usuario.criado", request?.ToString() ?? "0");
+                elasticSpan?.SetLabel("usuario.criado", request?.ToString() ?? "0");
+            }
+            finally
+            {
+                elasticSpan?.End();
+            }
         }
     }
 }
