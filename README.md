@@ -1,4 +1,6 @@
-Projeto está em .net core 9.0
+Projeto está em .net core 9.0 e usa mySQL
+
+O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
 
 Possui Tracing, APM.
 
