@@ -2,7 +2,9 @@ Projeto está em .net core 9.0 e usa mySQL
 
 O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
 
-Possui SWAGGER
+Possui SWAGGER.
+
+Possui Middleware para tratamento de validações, erros e etc - retornos de HTTP status codes.
 
 Possui Tracing, APM.
 
