@@ -4,6 +4,10 @@ Projeto está em .net core 9.0 e usa mySQL
   "MySql": "Server=localhost;Port=3306;Database=controleestoque;User=root;Password=admin"
 }
 
+IMPORTANTE:
+Instalar DOCKER windows
+Iniciar docker e verificar se RabbitMQ está rodando, caso n esteja executar.
+
 O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
 
 Possui SWAGGER.
@@ -21,8 +25,7 @@ Possui microservice RABBITMQ na requisição de novo PEDIDO, com tratamento de r
 
 Projeto de UNIT teste unit real, com teste de service de cadastro de novo usuario persistindo na base.
 
-Instalar DOCKER windows
-Iniciar docker e verificar se RabbitMQ está rodando, caso n esteja executar.
+
 
 Executar comando CMD : docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 
