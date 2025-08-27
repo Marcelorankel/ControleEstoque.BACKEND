@@ -24,9 +24,14 @@ namespace ControleEstoque.Application.Services
         {
 
             var res = await _usuarioRepository.GetByEmailAsync(loginRequest.Email);
+            if (res == null)
+            {
+                throw new ErrorHandlingMiddleware.NotFoundException($"Usuario não existe");
+            }
             //Validação Usuario
             if (res != null)
             {
+                
                 if (res.Email != loginRequest?.Email && res.Senha == loginRequest?.Senha)
                 {
                     throw new ErrorHandlingMiddleware.ValidationException($"Email invalido.");

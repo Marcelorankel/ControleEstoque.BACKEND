@@ -31,5 +31,18 @@ namespace ControleEstoque.API.Controllers
                 return BadRequest($"Não foi possível cadastrar o usuário.\n{ex.Message}");
             }
         }
+
+        #region Desabilitar ENDPOINTS HERDADOS DO BASE  
+        [NonAction]
+        public override async Task<IActionResult> Update(Guid id, Usuario entity)
+        {
+            throw new NotImplementedException("Este endpoint não está disponível neste controller.");
+        }
+        [NonAction]
+        public override async Task<ActionResult<Usuario>> Create(Usuario entity)
+        {
+            throw new NotImplementedException("Este endpoint não está disponível neste controller.");
+        }
+        #endregion
     }
 }
