@@ -13,7 +13,7 @@ O Endpoint AtualizarProdutoAdminEstoque necessita de LOGIN Administrador para te
 
 Possui microservice RABBITMQ na requisição de novo PEDIDO, com tratamento de rollback.
 
-Projeto de UNIT teste unit real, com teste de service de cadastro de novo usuario.
+Projeto de UNIT teste unit real, com teste de service de cadastro de novo usuario persistindo na base.
 
 Instalar DOCKER windows
 
