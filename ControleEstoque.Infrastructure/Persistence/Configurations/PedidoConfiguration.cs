@@ -50,7 +50,7 @@ namespace ControleEstoque.Infrastructure.Persistence.Configurations
 
             // Relacionamento com Usuario
             builder.HasOne(p => p.Usuario)
-                .WithMany(u => u.Pedidos) // coleção em Usuario
+                .WithMany(u => u.Pedidos) // Coleção em Usuario
                 .HasForeignKey(p => p.IdUsuario)
                 .HasConstraintName("FK_tbPedido_Usuario");
         }

@@ -44,10 +44,6 @@ namespace ControleEstoque.Application.Services
             //Preço
             if (request.Preco <= 0)
                 throw new ValidationException($"Preço não informado ou invalido");
-            ////Quantidade
-            //if (request.Quantidade <= 0)
-            //    throw new ValidationException($"Quantidade não informada ou invalida");
-
             var obj = new Produto
             {
                 Id = Guid.NewGuid(),

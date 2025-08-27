@@ -10,6 +10,9 @@ namespace ControleEstoque.Core.Interfaces.Service
 {
     public interface IPedidoService : IBaseService<Pedido>
     {
-        Task NovoPedidoAsync(PedidoRequest request);
+        Task NovoPedidoFilaAsync(PedidoRequest request);
+        Task<PedidoResponse> ObterPedidoPorIdAsync(Guid id);
+        Task<List<PedidoResponse>> ObterPedidosPorEmailUsuarioAsync(string email);
+        Task<List<PedidoResponse>> ObterTodosPedidosAsync();
     }
 }

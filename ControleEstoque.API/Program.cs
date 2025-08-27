@@ -15,6 +15,7 @@ using System;
 using System.Text;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
+using ControleEstoque.WorkerService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,11 +33,13 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IProdutoPedidoRepository, ProdutoPedidoRepository>();
 ////Service
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
 
 // Configurar OpenTelemetry Tracing
 builder.Services.AddOpenTelemetry()
@@ -60,6 +63,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
+
+// Registra o Worker como HostedService
+builder.Services.AddHostedService<WorkerControleEstoque>();
 
 // Configuração JWT
 var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");

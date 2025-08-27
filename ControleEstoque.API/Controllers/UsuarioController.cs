@@ -18,7 +18,6 @@ namespace ControleEstoque.API.Controllers
         {
             _usuarioService = usuarioService;
         }
-        //[Authorize(Policy = "ADMIN")]
         [HttpPost("Cadastrar")]
         public async Task<IActionResult> Create([FromForm] UsuarioRequest request)
         {
@@ -32,6 +31,5 @@ namespace ControleEstoque.API.Controllers
                 return BadRequest($"Não foi possível cadastrar o usuário.\n{ex.Message}");
             }
         }
-
     }
 }

@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 
 namespace ControleEstoque.Core.Interfaces.Service
 {
-    public interface IUsuarioService : IBaseService<Usuario>
+    public interface IProdutoPedidoService : IBaseService<ProdutoPedido>
     {
-        Task<Usuario?> GetByEmailAsync(string email);
-        Task NovoUsuarioAsync(UsuarioRequest request);
     }
 }

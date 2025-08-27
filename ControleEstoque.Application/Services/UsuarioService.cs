@@ -18,7 +18,7 @@ namespace ControleEstoque.Application.Services
         private readonly IUsuarioRepository _usuarioRepository;
 
         public UsuarioService(IUsuarioRepository usuarioRepository)
-            : base(usuarioRepository)  // passa pro BaseService
+            : base(usuarioRepository)
         {
             _usuarioRepository = usuarioRepository;
         }

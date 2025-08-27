@@ -30,9 +30,6 @@ namespace ControleEstoque.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        /// <summary>
-        /// Cria a entidade e retorna o valor da chave gerada
-        /// </summary>
         public async Task<object> CreateAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
@@ -50,6 +47,7 @@ namespace ControleEstoque.Infrastructure.Repositories
                 throw new Exception("Não foi possível determinar a chave primária da entidade.");
 
             var keyValue = entity.GetType().GetProperty(keyName)?.GetValue(entity);
+
             return keyValue!;
         }
         public async Task UpdateAsync(T entity)

@@ -13,8 +13,18 @@ namespace ControleEstoque.Core.Models
         public Guid IdUsuario { get; set; }
         public string? DocumentoCliente { get; set; }
         public DateTime DataPedido { get; set; }
+
+        public ICollection<ProdutoAdminRequest> Produtos { get; set; }
+    }
+
+    public class PedidoRabbitMQResponse
+    {
+        public Guid IdUsuario { get; set; }
+        public string? DocumentoCliente { get; set; }
+        public DateTime DataPedido { get; set; }
         public decimal ValorTotal { get; set; }
 
         public ICollection<ProdutoAdminRequest> Produtos { get; set; }
+        public Usuario Usuario { get; set; }
     }
 }

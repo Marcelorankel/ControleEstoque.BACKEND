@@ -1,16 +1,13 @@
 ﻿using ControleEstoque.Core.Entities;
-using ControleEstoque.Core.Enums;
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
-using ControleEstoque.Core.Utils;
 using Elastic.Apm;
+using Elastic.Apm.Api;
 using OpenTelemetry.Trace;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using RabbitMQ.Client;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using static ControleEstoque.Application.Middlewares.ErrorHandlingMiddleware;
 
 namespace ControleEstoque.Application.Services
@@ -21,6 +18,7 @@ namespace ControleEstoque.Application.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IProdutoRepository _produtoRepository;
         private readonly Tracer _tracer;
+        private readonly ConnectionFactory _factory;
 
         public PedidoService(IPedidoRepository pedidoRepository, IUsuarioRepository usuarioRepository, IProdutoRepository produtoRepository, TracerProvider tracerProvider)
             : base(pedidoRepository)  // passa pro BaseService
@@ -29,9 +27,10 @@ namespace ControleEstoque.Application.Services
             _usuarioRepository = usuarioRepository;
             _produtoRepository = produtoRepository;
             _tracer = tracerProvider.GetTracer("PedidoService");
+            _factory = new ConnectionFactory() { HostName = "localhost" }; // RabbitMQ
         }
 
-        public async Task NovoPedidoAsync(PedidoRequest request)
+        public async Task NovoPedidoFilaAsync(PedidoRequest request)
         {
             //Trace
             using var span = _tracer.StartActiveSpan("CriarPedido");
@@ -50,13 +49,15 @@ namespace ControleEstoque.Application.Services
             //IdUsuario
             if (request.IdUsuario == Guid.Empty)
                 throw new ValidationException($"Id Usuario não informado");
-            //ValorTotal
-            if (request.ValorTotal <= 0)
-                throw new ValidationException($"Valor total pedido incorreto ou não informado");
+          
 
+            decimal auxVotal = 0;
             //Valida Lista de Produtos
             foreach (var item in request.Produtos)
             {
+                //Soma valor total pedido
+                auxVotal+= item.Preco * item.Quantidade;
+
                 var aux = await _produtoRepository.GetByIdAsync(item.Id);
                 if (aux == null)
                     throw new ValidationException($"Produto ID - {item.Id} não foi encontrado");
@@ -70,36 +71,63 @@ namespace ControleEstoque.Application.Services
                 if (res == null)
                     throw new ValidationException($"Usuario ID - {request.IdUsuario} não foi encontrado");
 
-                var obj = new Pedido
+                var obj = new PedidoRabbitMQResponse
                 {
-                    Id = Guid.NewGuid(),
                     IdUsuario = request.IdUsuario,
                     DocumentoCliente = request.DocumentoCliente,
                     DataPedido = request.DataPedido,
-                    ValorTotal = request.ValorTotal,
-                    CreatedAt = DateTime.UtcNow,
-                    Usuario = res
+                    ValorTotal = auxVotal,
+                    Produtos = request.Produtos,
+                    Usuario = res                
                 };
 
-                var pedidoRes = await _pedidoRepository.CreateAsync(obj);
+                //Envia fila RabbitMQ
+                using var connection = await _factory.CreateConnectionAsync();
+                using var channel = await connection.CreateChannelAsync();
 
-                //Reduz estoque dos produtos do pedido
-                foreach (var item in request.Produtos)
-                {
-                    var aux = await _produtoRepository.GetByIdAsync(item.Id);
-                    aux.Quantidade -= item.Quantidade;
+                // Declaração da fila
+                await channel.QueueDeclareAsync(
+                    queue: "pedidos",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
 
-                    await _produtoRepository.UpdateAsync(aux);
+                // Serializa e publica a mensagem
+                var json = JsonSerializer.Serialize(obj);
+                var body = Encoding.UTF8.GetBytes(json);
 
-                }
+                await channel.BasicPublishAsync(
+                    exchange: string.Empty,
+                    routingKey: "pedidos",
+                    mandatory: false,
+                    basicProperties: new BasicProperties { Persistent = true },
+                    body: body);
 
-                span.SetAttribute("pedido.criado", pedidoRes?.ToString() ?? "0");
-                elasticSpan?.SetLabel("pedido.criado", pedidoRes?.ToString() ?? "0");
+                Console.WriteLine("Pedido enviado para fila RabbitMQ!");
+
+                span.SetAttribute("pedido.enviadoFila", request?.ToString() ?? "0");
+                elasticSpan?.SetLabel("pedido.enviadoFila", request?.ToString() ?? "0");
             }
             finally
             {
                 elasticSpan?.End();
             }
+        }
+
+        public async Task<PedidoResponse> ObterPedidoPorIdAsync(Guid id)
+        {
+            return await _pedidoRepository.ObterPedidoPorIdAsync(id);
+        }
+        public async Task<List<PedidoResponse>> ObterPedidosPorEmailUsuarioAsync(string email)
+        {
+            return await _pedidoRepository.ObterPedidosPorEmailUsuarioAsync(email);
+        }
+
+        public async Task<List<PedidoResponse>> ObterTodosPedidosAsync()
+        {
+            return await _pedidoRepository.ObterTodosPedidosAsync();
         }
     }
 }

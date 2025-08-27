@@ -13,5 +13,6 @@ namespace ControleEstoque.Core.Entities
         public string Descricao { get; set; } = string.Empty;
         public decimal Preco { get; set; }
         public int Quantidade { get; set; } = 0;
+        public ICollection<ProdutoPedido> ProdutosPedidos { get; set; } = new List<ProdutoPedido>();
     }
 }

@@ -16,14 +16,14 @@ namespace ControleEstoque.API.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<T>>> GetAll()
+        public virtual async Task<ActionResult<IEnumerable<T>>> GetAll()
         {
             var entities = await _repository.GetAllAsync();
             return Ok(entities);
         }
 
         [HttpGet("GetBy{id}")]
-        public async Task<ActionResult<T>> GetById(Guid id)
+        public virtual async Task<ActionResult<T>> GetById(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
@@ -45,7 +45,7 @@ namespace ControleEstoque.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public virtual async Task<IActionResult> Delete(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();

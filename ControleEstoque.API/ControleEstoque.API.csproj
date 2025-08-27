@@ -22,6 +22,7 @@
     <ProjectReference Include="..\ControleEstoque.Application\ControleEstoque.Application.csproj" />
     <ProjectReference Include="..\ControleEstoque.Core\ControleEstoque.Core.csproj" />
     <ProjectReference Include="..\ControleEstoque.Infrastructure\ControleEstoque.Infrastructure.csproj" />
+    <ProjectReference Include="..\ControleEstoque.WorkerService\ControleEstoque.WorkerService.csproj" />
   </ItemGroup>
 
 </Project>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ControleEstoque.Core.Entities
 {
-    public class Pedido :BaseEntity
+    public class Pedido : BaseEntity
     {
         public Guid Id { get; set; }
         public Guid IdUsuario { get; set; }   // FK
@@ -16,5 +16,7 @@ namespace ControleEstoque.Core.Entities
 
         // Navegação
         public Usuario Usuario { get; set; }
+
+        public ICollection<ProdutoPedido> ProdutosPedidos { get; set; } = new List<ProdutoPedido>();
     }
 }
