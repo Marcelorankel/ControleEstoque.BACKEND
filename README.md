@@ -1,4 +1,8 @@
-Projeto está em .net core 9.0 e usa mySQL
+Projeto está em .net core 9.0 e usa mySQL 
+
+"ConnectionStrings": {
+  "MySql": "Server=localhost;Port=3306;Database=controleestoque;User=root;Password=admin"
+}
 
 O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
 
