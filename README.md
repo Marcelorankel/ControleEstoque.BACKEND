@@ -7,6 +7,8 @@ Projeto está em .net core 9.0 e usa mySQL
 IMPORTANTE:
 Instalar DOCKER windows
 Iniciar docker e verificar se RabbitMQ está rodando, caso n esteja executar.
+<img width="1448" height="304" alt="image" src="https://github.com/user-attachments/assets/e17bfe28-2389-4d07-b531-3e105a960477" />
+
 
 O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
 
