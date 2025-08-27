@@ -54,7 +54,6 @@ namespace ControleEstoque.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-
                 throw new Exception($"{ex.InnerException?.Message}");
             }
         }
@@ -67,7 +66,6 @@ namespace ControleEstoque.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-
                 throw new Exception($"{ex.InnerException?.Message}");
             }
         }
@@ -81,7 +79,6 @@ namespace ControleEstoque.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-
                 throw new Exception($"{ex.InnerException?.Message}");
             }
         }
