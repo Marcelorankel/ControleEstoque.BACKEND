@@ -3,6 +3,8 @@ using ControleEstoque.Core.Entities;
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
+using Elastic.Apm.Api;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +32,24 @@ namespace ControleEstoque.API.Controllers
             {
                 return BadRequest($"Não foi possível cadastrar o usuário.\n{ex.Message}");
             }
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public virtual async Task<IActionResult> Update(Guid id, UsuarioEditRequest request)
+        {
+            var objUsuario = await _usuarioService.GetByIdAsync(id);
+
+            if (objUsuario == null) {
+                return NotFound();
+            }
+
+            request.Adapt(objUsuario);
+            objUsuario.UpdatedAt = DateTime.UtcNow;
+
+            await _usuarioService.UpdateAsync(objUsuario);
+
+            return NoContent();
         }
 
         #region Desabilitar ENDPOINTS HERDADOS DO BASE  

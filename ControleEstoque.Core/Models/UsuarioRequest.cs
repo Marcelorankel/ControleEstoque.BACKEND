@@ -14,4 +14,11 @@ namespace ControleEstoque.Core.Models
         public string Senha { get; set; }
         public eTipoUsuario TipoUsuario { get; set; }
     }
+
+    public class UsuarioEditRequest
+    {
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Senha { get; set; } = string.Empty;
+    }
 }
