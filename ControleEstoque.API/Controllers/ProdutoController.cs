@@ -3,6 +3,7 @@ using ControleEstoque.Core.Entities;
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace ControleEstoque.API.Controllers
 
         [Authorize]
         [HttpPost("Cadastrar")]
-        public async Task<IActionResult> Create([FromForm] ProdutoRequest request)
+        public async Task<IActionResult> Create([FromForm] ProdutoCadRequest request)
         {
             try
             {

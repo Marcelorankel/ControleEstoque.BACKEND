@@ -19,4 +19,11 @@ namespace ControleEstoque.Core.Models
     {
         public int Quantidade { get; set; }
     }
+
+    public class ProdutoCadRequest
+    {
+        public string Nome { get; set; } = default!;
+        public string Descricao { get; set; } = default!;
+        public decimal Preco { get; set; }
+    }
 }

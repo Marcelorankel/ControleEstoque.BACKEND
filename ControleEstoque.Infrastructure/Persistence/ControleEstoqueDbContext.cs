@@ -22,6 +22,10 @@ namespace ControleEstoque.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.Entity<Usuario>().ToTable("tbusuario");
+            modelBuilder.Entity<Pedido>().ToTable("tbpedido");
+            modelBuilder.Entity<Produto>().ToTable("tbproduto");
+            modelBuilder.Entity<ProdutoPedido>().ToTable("tbprodutopedido");
         }
     }
 }

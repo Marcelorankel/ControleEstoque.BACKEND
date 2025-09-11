@@ -15,7 +15,9 @@ namespace ControleEstoque.Application.Services
     {
         private readonly IProdutoPedidoRepository _produtoPedidoRepository;
 
-        public ProdutoPedidoService(IProdutoPedidoRepository produtoPedidoRepository, TracerProvider tracerProvider)
+        public ProdutoPedidoService(IProdutoPedidoRepository produtoPedidoRepository
+            //, TracerProvider tracerProvider
+            )
             : base(produtoPedidoRepository)  // passa pro BaseService
         {
             _produtoPedidoRepository = produtoPedidoRepository;

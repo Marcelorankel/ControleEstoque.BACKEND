@@ -2,9 +2,9 @@
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
-using Elastic.Apm;
-using Elastic.Apm.Api;
-using OpenTelemetry.Trace;
+//using Elastic.Apm;
+//using Elastic.Apm.Api;
+//using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -17,27 +17,36 @@ namespace ControleEstoque.Application.Services
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IProdutoRepository _produtoRepository;
-        private readonly Tracer _tracer;
+        //private readonly Tracer _tracer;
         private readonly ConnectionFactory _factory;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IUsuarioRepository usuarioRepository, IProdutoRepository produtoRepository, TracerProvider tracerProvider)
+        public PedidoService(IPedidoRepository pedidoRepository, IUsuarioRepository usuarioRepository, IProdutoRepository produtoRepository
+            //, TracerProvider tracerProvider
+            )
             : base(pedidoRepository)  // passa pro BaseService
         {
             _pedidoRepository = pedidoRepository;
             _usuarioRepository = usuarioRepository;
             _produtoRepository = produtoRepository;
-            _tracer = tracerProvider.GetTracer("PedidoService");
-            _factory = new ConnectionFactory() { HostName = "localhost" }; // RabbitMQ
+            //_tracer = tracerProvider.GetTracer("PedidoService");
+            _factory = new ConnectionFactory()
+            {
+                HostName = 
+                //Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DOCKER") == "true"
+                //            ? 
+                            "rabbitmq"
+                            //: "localhost"
+            }; // RabbitMQ
         }
 
         public async Task NovoPedidoFilaAsync(PedidoRequest request)
         {
-            //Trace
-            using var span = _tracer.StartActiveSpan("CriarPedido");
+            ////Trace
+            //using var span = _tracer.StartActiveSpan("CriarPedido");
 
-            //Elastic APM
-            var transaction = Agent.Tracer.CurrentTransaction;
-            var elasticSpan = transaction?.StartSpan("CriarPedido", "custom");
+            ////Elastic APM
+            //var transaction = Agent.Tracer.CurrentTransaction;
+            //var elasticSpan = transaction?.StartSpan("CriarPedido", "custom");
 
             //Validadores
             //DataPedido
@@ -49,14 +58,14 @@ namespace ControleEstoque.Application.Services
             //IdUsuario
             if (request.IdUsuario == Guid.Empty)
                 throw new ValidationException($"Id Usuario não informado");
-          
+
 
             decimal auxVotal = 0;
             //Valida Lista de Produtos
             foreach (var item in request.Produtos)
             {
                 //Soma valor total pedido
-                auxVotal+= item.Preco * item.Quantidade;
+                auxVotal += item.Preco * item.Quantidade;
 
                 var aux = await _produtoRepository.GetByIdAsync(item.Id);
                 if (aux == null)
@@ -78,7 +87,7 @@ namespace ControleEstoque.Application.Services
                     DataPedido = request.DataPedido,
                     ValorTotal = auxVotal,
                     Produtos = request.Produtos,
-                    Usuario = res                
+                    Usuario = res
                 };
 
                 //Envia fila RabbitMQ
@@ -107,12 +116,12 @@ namespace ControleEstoque.Application.Services
 
                 Console.WriteLine("Pedido enviado para fila RabbitMQ!");
 
-                span.SetAttribute("pedido.enviadoFila", request?.ToString() ?? "0");
-                elasticSpan?.SetLabel("pedido.enviadoFila", request?.ToString() ?? "0");
+                //span.SetAttribute("pedido.enviadoFila", request?.ToString() ?? "0");
+                //elasticSpan?.SetLabel("pedido.enviadoFila", request?.ToString() ?? "0");
             }
             finally
             {
-                elasticSpan?.End();
+                //elasticSpan?.End();
             }
         }
 

@@ -1,0 +1,55 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: controle_estoque_rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  db:
+    image: mysql:8
+    container_name: controle_estoque_db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: controleestoque
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: ControleEstoque.API/Dockerfile
+    container_name: controle_estoque_api
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__MySql=server=db;port=3306;database=controleestoque;user=app_user;password=app_pass;
+      - ASPNETCORE_ENVIRONMENT=Development
+  worker:
+    build:
+      context: .
+      dockerfile: ControleEstoque.WorkerService/Dockerfile
+    container_name: controle_estoque_worker
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__MySql=server=db;port=3306;database=controleestoque;user=app_user;password=app_pass;
+      - RabbitMQ__HostName=rabbitmq
+    restart: on-failure
+volumes:
+ db_data:

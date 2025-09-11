@@ -27,114 +27,115 @@ namespace ControleEstoque.WorkerService
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
-            _factory = new ConnectionFactory() { HostName = "localhost" }; // RabbitMQ
+            _factory = new ConnectionFactory()
+            {
+                HostName =
+                             //Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DOCKER") == "true"
+                             //            ? 
+                             "rabbitmq"
+                //"localhost"
+                //: "localhost"
+            }; // RabbitMQ
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //var x = Guid.NewGuid();
-            while (!stoppingToken.IsCancellationRequested)
+            _logger.LogInformation("Worker rodando at: {time}", DateTimeOffset.Now);
+
+            Console.WriteLine("Consumindo msgs fila pedidos");
+
+            // cria conexão e canal apenas uma vez
+            using var connection = await _factory.CreateConnectionAsync();
+            using var channel = await connection.CreateChannelAsync();
+
+            await channel.ExchangeDeclareAsync(
+                exchange: "messages",
+                type: ExchangeType.Direct,
+                durable: true
+            );
+
+            await channel.QueueDeclareAsync(
+                queue: "pedidos",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null
+            );
+
+            await channel.QueueBindAsync("pedidos", "messages", string.Empty);
+
+            Console.WriteLine("Aguardando mensagens...");
+
+            var consumer = new AsyncEventingBasicConsumer(channel);
+            consumer.ReceivedAsync += async (sender, eventArgs) =>
             {
-                if (_logger.IsEnabled(LogLevel.Information))
-                {                  
-                    _logger.LogInformation("Worker rodando at: {time}", DateTimeOffset.Now);
+                using var scope = _scopeFactory.CreateScope();
+                var _pedidoRepo = scope.ServiceProvider.GetRequiredService<IPedidoRepository>();
+                var _produtoRepo = scope.ServiceProvider.GetRequiredService<IProdutoRepository>();
+                var _produtoPedidoRepo = scope.ServiceProvider.GetRequiredService<IProdutoPedidoRepository>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<ControleEstoqueDbContext>();
 
-                    Console.WriteLine("Consumindo msgs fila pedidos");
-                    using var connection = await _factory.CreateConnectionAsync();
-                    using var channel = await connection.CreateChannelAsync();
+                using var transaction = await dbContext.Database.BeginTransactionAsync();
 
-                    await channel.QueueDeclareAsync(
-                            queue: "pedidos",
-                            durable: false,
-                            exclusive: false,
-                            autoDelete: false,
-                            arguments: null);
+                byte[] body = eventArgs.Body.ToArray();
+                string message = Encoding.UTF8.GetString(body);
 
-                    await channel.QueueBindAsync("pedidos", "messages", string.Empty);
+                Console.WriteLine($"MSG Recebida : {message}");
 
-                    Console.WriteLine("Aguardando mensagens...");
+                var request = JsonSerializer.Deserialize<PedidoRabbitMQResponse>(message);
 
-                    var consumer = new AsyncEventingBasicConsumer(channel);
-                    consumer.ReceivedAsync += async (sender, eventArgs) =>
+                try
+                {
+                    var objPedido = new Pedido
                     {
-                        // Cria escopo para usar serviços Scoped
-                        using var scope = _scopeFactory.CreateScope();
-                        var _pedidoRepo = scope.ServiceProvider.GetRequiredService<IPedidoRepository>();
-                        var _produtoRepo = scope.ServiceProvider.GetRequiredService<IProdutoRepository>();
-                        var _produtoPedidoRepo = scope.ServiceProvider.GetRequiredService<IProdutoPedidoRepository>();
-
-                        var dbContext = scope.ServiceProvider.GetRequiredService<ControleEstoqueDbContext>();
-
-                        using var transaction = await dbContext.Database.BeginTransactionAsync();
-
-                        byte[] body = eventArgs.Body.ToArray();
-                        string message = Encoding.UTF8.GetString(body);
-
-                        Console.WriteLine($"MSG Recebida : {message}");
-
-                        var request = JsonSerializer.Deserialize<PedidoRabbitMQResponse>(message);
-
-                        try
-                        {   
-                            var objPedido = new Pedido
-                            {
-                                Id = Guid.NewGuid(),
-                                IdUsuario = request.IdUsuario,
-                                DocumentoCliente = request.DocumentoCliente,
-                                DataPedido = request.DataPedido,
-                                ValorTotal = request.ValorTotal,
-                                ProdutosPedidos = null,
-                                CreatedAt = DateTime.UtcNow
-                            };
-
-
-                            var resultPedido = await _pedidoRepo.CreateAsync(objPedido);
-
-                            //Insere items do pedido na tabela ProdutoPedido
-                            foreach (var item in request.Produtos)
-                            {
-                                var auxProdutoPedido = new ProdutoPedido
-                                {
-                                    Id = Guid.NewGuid(),
-                                    IdProduto = item.Id,
-                                    IdPedido = objPedido.Id,                                
-                                    CreatedAt = DateTime.UtcNow
-                                };
-
-                                await _produtoPedidoRepo.CreateAsync(auxProdutoPedido);
-                            }
-
-                            //Reduz estoque dos produtos do pedido
-                            foreach (var item in request.Produtos)
-                            {
-                                var aux = await _produtoRepo.GetByIdAsync(item.Id);
-                                aux.Quantidade -= item.Quantidade;
-
-                                await _produtoRepo.UpdateAsync(aux);
-                            }
-
-                            //Confirma transação no banco
-                            await transaction.CommitAsync();
-                            //Confirma mensagem no RabbitMQ
-                            await ((AsyncEventingBasicConsumer)sender).Channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Erro ao processar mensagem do pedido");
-
-                            await transaction.RollbackAsync();
-
-                            // Nack para reprocessar depois ou mover para DLQ
-                            await ((AsyncEventingBasicConsumer)sender).Channel.BasicNackAsync(eventArgs.DeliveryTag, multiple: false, requeue: false);
-                        }
+                        Id = Guid.NewGuid(),
+                        IdUsuario = request.IdUsuario,
+                        DocumentoCliente = request.DocumentoCliente,
+                        DataPedido = request.DataPedido,
+                        ValorTotal = request.ValorTotal,
+                        CreatedAt = DateTime.UtcNow
                     };
 
-                    await channel.BasicConsumeAsync("pedidos", autoAck: false, consumer);
+                    await _pedidoRepo.CreateAsync(objPedido);
 
-                    Console.ReadLine();
+                    foreach (var item in request.Produtos)
+                    {
+                        var auxProdutoPedido = new ProdutoPedido
+                        {
+                            Id = Guid.NewGuid(),
+                            IdProduto = item.Id,
+                            IdPedido = objPedido.Id,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        await _produtoPedidoRepo.CreateAsync(auxProdutoPedido);
+                    }
+
+                    foreach (var item in request.Produtos)
+                    {
+                        var aux = await _produtoRepo.GetByIdAsync(item.Id);
+                        aux.Quantidade -= item.Quantidade;
+                        await _produtoRepo.UpdateAsync(aux);
+                    }
+
+                    await transaction.CommitAsync();
+
+                    await ((AsyncEventingBasicConsumer)sender)
+                        .Channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);
                 }
-                await Task.Delay(1000, stoppingToken);
-            }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao processar mensagem do pedido");
+                    await transaction.RollbackAsync();
+
+                    await ((AsyncEventingBasicConsumer)sender)
+                        .Channel.BasicNackAsync(eventArgs.DeliveryTag, multiple: false, requeue: false);
+                }
+            };
+
+            await channel.BasicConsumeAsync("pedidos", autoAck: false, consumer);
+
+            // mantém o Worker vivo até receber stop
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
     }
 }

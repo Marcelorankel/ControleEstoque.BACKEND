@@ -5,19 +5,30 @@ using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Utils;
 using ControleEstoque.Infrastructure.Persistence;
 using ControleEstoque.Infrastructure.Repositories;
+//using ControleEstoque.WorkerService;
+using Elastic.Apm;
+using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System;
 using System.Text;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Resources;
-using ControleEstoque.WorkerService;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenAnyIP(5000); // Escuta em todas as interfaces no container
+//});
+
+// Elastic APM
+//builder.Services.AddElasticApm();
 
 // Recupera a string de conexão do MySQL
 var connectionString = builder.Configuration.GetConnectionString("MySql");
@@ -41,20 +52,20 @@ builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
 
-// Configurar OpenTelemetry Tracing
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracerProviderBuilder =>
-    {
-        tracerProviderBuilder
-            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MinhaApi"))
-            .AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddJaegerExporter(options =>
-            {
-                options.AgentHost = "localhost";
-                options.AgentPort = 6831;
-            });
-    });
+//// Configurar OpenTelemetry Tracing
+//builder.Services.AddOpenTelemetry()
+//    .WithTracing(tracerProviderBuilder =>
+//    {
+//        tracerProviderBuilder
+//            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MinhaApi"))
+//            .AddAspNetCoreInstrumentation()
+//            .AddHttpClientInstrumentation()
+//            .AddJaegerExporter(options =>
+//            {
+//                options.AgentHost = "localhost";
+//                options.AgentPort = 6831;
+//            });
+//    });
 // Adiciona Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -65,7 +76,7 @@ builder.Services.AddControllers()
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 
 // Registra o Worker como HostedService
-builder.Services.AddHostedService<WorkerControleEstoque>();
+//builder.Services.AddHostedService<WorkerControleEstoque>();
 
 // Configuração JWT
 var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");
@@ -114,6 +125,16 @@ builder.Services.AddAuthentication(options =>
      };
  });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Authorization
 builder.Services.AddAuthorization(options =>
 {
@@ -154,6 +175,11 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
+
+// Middleware Elastic APM
+//app.UseAllElasticApm();
+
 // Ativa Swagger
 if (app.Environment.IsDevelopment())
 {
@@ -187,3 +213,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+//app.Run("http://0.0.0.0:80");
