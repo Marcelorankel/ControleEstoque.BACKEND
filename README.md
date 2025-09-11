@@ -6,17 +6,17 @@ Projeto está em .net core 9.0 e usa mySQL
 
 IMPORTANTE:
 Instalar DOCKER windows
-Iniciar docker e verificar se RabbitMQ está rodando, caso n esteja executar.
-<img width="1448" height="304" alt="image" src="https://github.com/user-attachments/assets/e17bfe28-2389-4d07-b531-3e105a960477" />
 
+Comandos Rodar aplicação docker
+1 ° Eliminar Tudo : docker compose down -v
+2 ° Startar Tudo : docker compose up --build
 
-O script das tabelas está na raiz do projeto do git nome : ControleEstoqueTabelas.sql
+Link Swagger API : http://localhost:5000/index.html
+
 
 Possui SWAGGER.
 
 Possui Middleware para tratamento de validações, erros e etc - retornos de HTTP status codes.
-
-Possui Tracing, APM.
 
 Possui regras Authorization Administrador e Vendedor
 Todos end points necessitam de usuario logado com token valido, com excessao do Cadastro de novo usuario e auth.
