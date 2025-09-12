@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using RabbitMQ.Client;
 using System;
 using System.Text;
 
@@ -37,6 +38,18 @@ var connectionString = builder.Configuration.GetConnectionString("MySql");
 builder.Services.AddDbContext<ControleEstoqueDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
     ServiceLifetime.Scoped);
+
+//RabbitMQ
+var configuration = builder.Configuration;
+
+var rabbitHost = Environment.GetEnvironmentVariable("RABBITMQ_HOST")
+                 ?? configuration["RabbitMQ:HostName"]
+                 ?? "localhost";
+Console.WriteLine("Variavel : " + rabbitHost);
+builder.Services.AddSingleton(new ConnectionFactory
+{
+    HostName = rabbitHost
+});
 
 ////Dependency Injection
 ////Repository

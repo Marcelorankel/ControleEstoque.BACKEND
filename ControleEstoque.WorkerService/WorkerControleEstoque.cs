@@ -22,20 +22,13 @@ namespace ControleEstoque.WorkerService
 
         public WorkerControleEstoque(
             ILogger<WorkerControleEstoque> logger,
-            IServiceScopeFactory scopeFactory
+            IServiceScopeFactory scopeFactory,
+            ConnectionFactory factory
             )
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
-            _factory = new ConnectionFactory()
-            {
-                HostName =
-                             //Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DOCKER") == "true"
-                             //            ? 
-                             "rabbitmq"
-                //"localhost"
-                //: "localhost"
-            }; // RabbitMQ
+            _factory = factory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -42,6 +42,7 @@ services:
     environment:
       - ConnectionStrings__MySql=server=db;port=3306;database=controleestoque;user=app_user;password=app_pass;
       - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
   worker:
     build:
       context: .

@@ -1,4 +1,13 @@
 {
+  "ControleEstoque.API": {
+    "commandName": "Project",
+    "dotnetRunMessages": true,
+    "environmentVariables": {
+      "ConnectionStrings__MySql": "Server=localhost;Port=3307;Database=controleestoque;User=app_user;Password=app_pass",
+      "RABBITMQ_HOST": "localhost",
+      "ASPNETCORE_ENVIRONMENT": "Development"
+    }
+  },
   "profiles": {
     "http": {
       "commandName": "Project",

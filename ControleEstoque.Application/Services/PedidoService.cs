@@ -20,7 +20,10 @@ namespace ControleEstoque.Application.Services
         //private readonly Tracer _tracer;
         private readonly ConnectionFactory _factory;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IUsuarioRepository usuarioRepository, IProdutoRepository produtoRepository
+        public PedidoService(IPedidoRepository pedidoRepository, 
+            IUsuarioRepository usuarioRepository, 
+            IProdutoRepository produtoRepository,
+            ConnectionFactory factory
             //, TracerProvider tracerProvider
             )
             : base(pedidoRepository)  // passa pro BaseService
@@ -29,14 +32,7 @@ namespace ControleEstoque.Application.Services
             _usuarioRepository = usuarioRepository;
             _produtoRepository = produtoRepository;
             //_tracer = tracerProvider.GetTracer("PedidoService");
-            _factory = new ConnectionFactory()
-            {
-                HostName = 
-                //Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DOCKER") == "true"
-                //            ? 
-                            "rabbitmq"
-                            //: "localhost"
-            }; // RabbitMQ
+            _factory = factory;
         }
 
         public async Task NovoPedidoFilaAsync(PedidoRequest request)
