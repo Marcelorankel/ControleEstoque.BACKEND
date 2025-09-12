@@ -8,11 +8,10 @@ IMPORTANTE:
 Instalar DOCKER windows
 
 Comandos Rodar aplicação docker
-1 ° Eliminar Tudo : docker compose down -v
-2 ° Startar Tudo : docker compose up --build
+docker compose down -v
+docker compose up --build
 
 Link Swagger API : http://localhost:5000/index.html
-
 
 Possui SWAGGER.
 
@@ -26,10 +25,6 @@ O Endpoint AtualizarProdutoAdminEstoque necessita de LOGIN Administrador para te
 Possui microservice RABBITMQ na requisição de novo PEDIDO, com tratamento de rollback.
 
 Projeto de UNIT teste unit real, com teste de service de cadastro de novo usuario persistindo na base.
-
-
-
-Executar comando CMD : docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
 
 LOCALHOST RabbitMQ : http://localhost:15672/
 
@@ -77,3 +72,15 @@ Retorna todos os produtos cadastrados no estoque.
 
 5- GetByID                   /api/Produto/GetByID
 Retorna o produto de acordo com o ID do produto buscado 
+
+
+
+
+
+Comands
+Gerar Token KIBANA
+F:\Projetos.NET\ControleEstoque.BACKEND> docker exec -it elasticsearch bin/elasticsearch-service-tokens create elastic/kibana kibana
+
+Executar comando CMD : docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+
+
