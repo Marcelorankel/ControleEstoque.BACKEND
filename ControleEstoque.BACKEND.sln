@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleEstoque.API", "ControleEstoque.API\ControleEstoque.API.csproj", "{4A7C7352-00FC-4385-B446-DB3BF802A3E3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleEstoque.Application", "ControleEstoque.Application\ControleEstoque.Application.csproj", "{5F0E9F35-E74E-4076-AF1D-931384E7B72C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleEstoque.Core", "ControleEstoque.Core\ControleEstoque.Core.csproj", "{AEA9C86F-46BD-44AF-A2E7-80D3287A09DB}"
@@ -25,16 +23,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mysql-scripts", "mysql-scri
 		create-tables.sql = create-tables.sql
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleEstoque.API", "ControleEstoque.API\ControleEstoque.API.csproj", "{F3CCE02A-447E-73CA-C34D-FCF315F79891}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4A7C7352-00FC-4385-B446-DB3BF802A3E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A7C7352-00FC-4385-B446-DB3BF802A3E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A7C7352-00FC-4385-B446-DB3BF802A3E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A7C7352-00FC-4385-B446-DB3BF802A3E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F0E9F35-E74E-4076-AF1D-931384E7B72C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F0E9F35-E74E-4076-AF1D-931384E7B72C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F0E9F35-E74E-4076-AF1D-931384E7B72C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,6 +51,10 @@ Global
 		{FF46091C-D6AF-48AF-B700-697902D1EEDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF46091C-D6AF-48AF-B700-697902D1EEDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF46091C-D6AF-48AF-B700-697902D1EEDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3CCE02A-447E-73CA-C34D-FCF315F79891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3CCE02A-447E-73CA-C34D-FCF315F79891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3CCE02A-447E-73CA-C34D-FCF315F79891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3CCE02A-447E-73CA-C34D-FCF315F79891}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
