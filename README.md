@@ -78,5 +78,9 @@ Retorna o produto de acordo com o ID do produto buscado
 
 
 Comands
+Gerar Token KIBANA
+F:\Projetos.NET\ControleEstoque.BACKEND> docker exec -it elasticsearch bin/elasticsearch-service-tokens create elastic/kibana kibana
 
 Executar comando CMD : docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+
+
