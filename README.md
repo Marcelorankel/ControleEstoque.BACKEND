@@ -12,6 +12,8 @@ docker compose down -v
 docker compose up --build
 
 Link Swagger API : http://localhost:5000/index.html
+Link Kibana : http://localhost:5601/
+Link RabbitMQ : http://localhost:15672/
 
 Possui SWAGGER.
 
@@ -26,7 +28,7 @@ Possui microservice RABBITMQ na requisição de novo PEDIDO, com tratamento de r
 
 Projeto de UNIT teste unit real, com teste de service de cadastro de novo usuario persistindo na base.
 
-LOCALHOST RabbitMQ : http://localhost:15672/
+
 
 PASSO A PASSO DA API
 
