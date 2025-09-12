@@ -1,16 +1,7 @@
 ﻿using ControleEstoque.Core.Entities;
-using ControleEstoque.Core.Enums;
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
-using ControleEstoque.Core.Utils;
-//using Elastic.Apm;
-//using OpenTelemetry.Trace;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static ControleEstoque.Application.Middlewares.ErrorHandlingMiddleware;
 
 namespace ControleEstoque.Application.Services
@@ -18,15 +9,12 @@ namespace ControleEstoque.Application.Services
     public class ProdutoService : BaseService<Produto>, IProdutoService
     {
         private readonly IProdutoRepository _produtoRepository;
-        //private readonly Tracer _tracer;
 
         public ProdutoService(IProdutoRepository produtoRepository
-            //, TracerProvider tracerProvider
             )
             : base(produtoRepository)  // passa pro BaseService
         {
             _produtoRepository = produtoRepository;
-            //_tracer = tracerProvider.GetTracer("ProdutoService");
         }
 
         public async Task<Produto?> GetByNomeAsync(string email)
@@ -36,13 +24,6 @@ namespace ControleEstoque.Application.Services
 
         public async Task NovoProdutoAsync(ProdutoCadRequest request)
         {
-            ////Trace
-            //using var span = _tracer.StartActiveSpan("NovoProduto");
-
-            ////Elastic APM
-            //var transaction = Agent.Tracer.CurrentTransaction;
-            //var elasticSpan = transaction?.StartSpan("NovoProduto", "custom");
-
             //Produto(Nome) já cadastrado
             var res = await _produtoRepository.GetByNomeAsync(request.Nome);
             if (res != null)
@@ -70,24 +51,14 @@ namespace ControleEstoque.Application.Services
                 };
 
                 await _produtoRepository.CreateAsync(obj);
-                //span.SetAttribute("produto.criado", request?.ToString() ?? "0");
-                //elasticSpan?.SetLabel("produto.criado", request?.ToString() ?? "0");
             }
             finally
             {
-                //elasticSpan?.End();
             }
         }
 
         public async Task AtualizarProdutoAsync(ProdutoRequest request)
         {
-            ////Trace
-            //using var span = _tracer.StartActiveSpan("AtualizarProdutoAsync");
-
-            ////Elastic APM
-            //var transaction = Agent.Tracer.CurrentTransaction;
-            //var elasticSpan = transaction?.StartSpan("AtualizarProdutoAsync", "custom");
-
             //Produto(Nome) já cadastrado
             var res = await _produtoRepository.GetByIdAsync(request.Id);
             if (res == null)
@@ -111,25 +82,14 @@ namespace ControleEstoque.Application.Services
                 res.UpdatedAt = DateTime.UtcNow;
 
                 await _repository.UpdateAsync(res);
-
-                //span.SetAttribute("produto.atualizado", request?.ToString() ?? "0");
-                //elasticSpan?.SetLabel("produto.atualizado", request?.ToString() ?? "0");
             }
             finally
             {
-                //elasticSpan?.End();
             }
         }
 
         public async Task AtualizarProdutoAdminAsync(ProdutoAdminRequest request)
         {
-            ////Trace
-            //using var span = _tracer.StartActiveSpan("AtualizarProdutoAdminAsync");
-
-            ////Elastic APM
-            //var transaction = Agent.Tracer.CurrentTransaction;
-            //var elasticSpan = transaction?.StartSpan("AtualizarProdutoAdminAsync", "custom");
-
             //Produto(Nome) já cadastrado
             var res = await _produtoRepository.GetByIdAsync(request.Id);
             if (res == null)
@@ -158,13 +118,9 @@ namespace ControleEstoque.Application.Services
 
 
                 await _repository.UpdateAsync(res);
-
-                //span.SetAttribute("produto.atualizadoAdmin", request?.ToString() ?? "0");
-                //elasticSpan?.SetLabel("produto.atualizadoAdmin", request?.ToString() ?? "0");
             }
             finally
             {
-                //elasticSpan?.End();
             }
         }
     }

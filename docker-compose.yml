@@ -1,4 +1,55 @@
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    healthcheck:
+      test: ["CMD", "curl", "-s", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=kibana
+      - SERVER_HOST=0.0.0.0
+      - xpack.encryptedSavedObjects.encryptionKey=ChaveTesteLocal123!
+    ports:
+      - 5601:5601
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.11.0
+    container_name: apm-server
+    environment:
+      - output.elasticsearch.hosts=["http://elasticsearch:9200"]
+      - apm-server.host=0.0.0.0:8200
+    ports:
+      - 8200:8200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: controle_estoque_rabbit
@@ -43,6 +94,12 @@ services:
       - ConnectionStrings__MySql=server=db;port=3306;database=controleestoque;user=app_user;password=app_pass;
       - ASPNETCORE_ENVIRONMENT=Development
       - RABBITMQ_HOST=rabbitmq
+      - ELASTIC_APM_SERVER_URLS=http://apm-server:8200
+      - ELASTIC_APM_SERVICE_NAME=MinhaApi
+      - ELASTIC_APM_ENVIRONMENT=development
+      - ELASTIC_APM_SECRET_TOKEN=
+      - DOTNET_RUNNING_IN_CONTAINER=true
+
   worker:
     build:
       context: .
@@ -59,3 +116,4 @@ services:
     restart: on-failure
 volumes:
  db_data:
+ esdata:   

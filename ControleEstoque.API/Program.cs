@@ -7,6 +7,10 @@ using ControleEstoque.Infrastructure.Persistence;
 using ControleEstoque.Infrastructure.Repositories;
 //using ControleEstoque.WorkerService;
 using Elastic.Apm;
+using Elastic.Apm.AspNetCore;
+using Elastic.Apm.DiagnosticSource;
+using Elastic.Apm.EntityFrameworkCore;
+using Elastic.Apm.NetCoreAll;
 using Elastic.Apm.NetCoreAll;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +34,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Elastic APM
 //builder.Services.AddElasticApm();
+builder.Services.AddElasticApmForAspNetCore(
+    new HttpDiagnosticsSubscriber(),
+    new EfCoreDiagnosticsSubscriber()
+    );
 
 // Recupera a string de conexão do MySQL
 var connectionString = builder.Configuration.GetConnectionString("MySql");
@@ -87,6 +95,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
+
+// Configura o Elastic APM diretamente usando variáveis de ambiente
+//builder.Services.AddElasticApm();
 
 // Registra o Worker como HostedService
 //builder.Services.AddHostedService<WorkerControleEstoque>();
@@ -188,10 +199,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+
+
 app.UseCors("AllowAll");
 
-// Middleware Elastic APM
-//app.UseAllElasticApm();
+// Middleware do Elastic APM
+//app.UseElasticApm();
 
 // Ativa Swagger
 if (app.Environment.IsDevelopment())

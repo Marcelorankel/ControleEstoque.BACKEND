@@ -2,9 +2,6 @@
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
-//using Elastic.Apm;
-//using Elastic.Apm.Api;
-//using OpenTelemetry.Trace;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -17,33 +14,23 @@ namespace ControleEstoque.Application.Services
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IProdutoRepository _produtoRepository;
-        //private readonly Tracer _tracer;
         private readonly ConnectionFactory _factory;
 
         public PedidoService(IPedidoRepository pedidoRepository, 
             IUsuarioRepository usuarioRepository, 
             IProdutoRepository produtoRepository,
             ConnectionFactory factory
-            //, TracerProvider tracerProvider
             )
             : base(pedidoRepository)  // passa pro BaseService
         {
             _pedidoRepository = pedidoRepository;
             _usuarioRepository = usuarioRepository;
             _produtoRepository = produtoRepository;
-            //_tracer = tracerProvider.GetTracer("PedidoService");
             _factory = factory;
         }
 
         public async Task NovoPedidoFilaAsync(PedidoRequest request)
         {
-            ////Trace
-            //using var span = _tracer.StartActiveSpan("CriarPedido");
-
-            ////Elastic APM
-            //var transaction = Agent.Tracer.CurrentTransaction;
-            //var elasticSpan = transaction?.StartSpan("CriarPedido", "custom");
-
             //Validadores
             //DataPedido
             if (request.DataPedido == DateTime.MinValue)
@@ -110,14 +97,10 @@ namespace ControleEstoque.Application.Services
                     basicProperties: new BasicProperties { Persistent = true },
                     body: body);
 
-                Console.WriteLine("Pedido enviado para fila RabbitMQ!");
-
-                //span.SetAttribute("pedido.enviadoFila", request?.ToString() ?? "0");
-                //elasticSpan?.SetLabel("pedido.enviadoFila", request?.ToString() ?? "0");
+                Console.WriteLine("Pedido enviado para fila RabbitMQ!");        
             }
             finally
             {
-                //elasticSpan?.End();
             }
         }
 
