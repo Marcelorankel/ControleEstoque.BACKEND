@@ -73,20 +73,6 @@ builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
 
-//// Configurar OpenTelemetry Tracing
-//builder.Services.AddOpenTelemetry()
-//    .WithTracing(tracerProviderBuilder =>
-//    {
-//        tracerProviderBuilder
-//            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MinhaApi"))
-//            .AddAspNetCoreInstrumentation()
-//            .AddHttpClientInstrumentation()
-//            .AddJaegerExporter(options =>
-//            {
-//                options.AgentHost = "localhost";
-//                options.AgentPort = 6831;
-//            });
-//    });
 // Adiciona Controllers
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -95,12 +81,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddSwaggerGenNewtonsoftSupport();
-
-// Configura o Elastic APM diretamente usando variáveis de ambiente
-//builder.Services.AddElasticApm();
-
-// Registra o Worker como HostedService
-//builder.Services.AddHostedService<WorkerControleEstoque>();
 
 // Configuração JWT
 var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");
@@ -202,9 +182,6 @@ var app = builder.Build();
 
 
 app.UseCors("AllowAll");
-
-// Middleware do Elastic APM
-//app.UseElasticApm();
 
 // Ativa Swagger
 if (app.Environment.IsDevelopment())
