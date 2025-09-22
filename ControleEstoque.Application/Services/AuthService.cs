@@ -4,6 +4,7 @@ using ControleEstoque.Core.Enums;
 using ControleEstoque.Core.Interfaces.Repository;
 using ControleEstoque.Core.Interfaces.Service;
 using ControleEstoque.Core.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,10 +15,12 @@ namespace ControleEstoque.Application.Services
     public class AuthService : IAuthService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(IUsuarioRepository usuarioRepository)
+        public AuthService(IUsuarioRepository usuarioRepository, IConfiguration configuration)
         {
             _usuarioRepository = usuarioRepository;
+            _configuration = configuration;
         }
 
         public async Task<string> Login(LoginRequest loginRequest)
@@ -47,10 +50,14 @@ namespace ControleEstoque.Application.Services
         private string GeraToken(Usuario usuario)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");
+            string? apiKey = _configuration["AppSettings:TokenKey"];
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                throw new InvalidOperationException("A chave do token não foi configurada.");
+            }
+            var key = Encoding.ASCII.GetBytes(apiKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                //Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, usuario.Email) }),
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, usuario.Email),

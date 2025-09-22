@@ -72,7 +72,8 @@ builder.Services.AddControllers()
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 
 // Configuração JWT
-var key = Encoding.ASCII.GetBytes("BancoDigital2025CuritibaPRBrasil");
+string tokenKey = builder.Configuration["AppSettings:TokenKey"];
+var key = Encoding.ASCII.GetBytes(tokenKey);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
